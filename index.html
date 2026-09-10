@@ -3,29 +3,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-    <title>XanaPlus Advert Studio – Logo / Easter Offers</title>
+    <title>XanaPlus Advert Studio – Discount & BOGOF</title>
     <!-- html2canvas & jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- SheetJS for Excel import -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --green: #0f6b3f;
+            --green-bright: #1a8a4f;
             --gold: #f4b740;
-            --border: #222;
-            --easter-pink: #ffb7c5;
-            --easter-lavender: #e6d0ff;
-            --easter-mint: #c7f0db;
-            --easter-yellow: #fff2b5;
+            --red-hot: #d62828;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', 'Poppins', Arial, sans-serif;
@@ -55,10 +47,7 @@
             align-items: flex-end;
         }
 
-        .control-group {
-            flex: 1 1 180px;
-            min-width: 140px;
-        }
+        .control-group { flex: 1 1 180px; min-width: 140px; }
 
         .control-group label {
             font-weight: 600;
@@ -110,9 +99,7 @@
             font-size: 13px;
         }
 
-        .radio-switch input {
-            display: none;
-        }
+        .radio-switch input { display: none; }
 
         .radio-switch input:checked+span {
             background: var(--green);
@@ -132,11 +119,7 @@
             gap: 12px;
             margin-top: 8px;
         }
-
-        .blur-slider input {
-            flex: 1;
-            margin: 0;
-        }
+        .blur-slider input { flex: 1; margin: 0; }
 
         .file-upload-wrapper {
             display: flex;
@@ -186,38 +169,19 @@
             box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-secondary {
-            background: #4a5b4e;
-        }
-        .btn-secondary:hover {
-            background: #3a4b3e;
-        }
+        .btn-secondary { background: #4a5b4e; }
+        .btn-secondary:hover { background: #3a4b3e; }
 
-        .btn-danger {
-            background: #c0392b;
-        }
-        .btn-danger:hover {
-            background: #a93226;
-        }
+        .btn-danger { background: #c0392b; }
+        .btn-danger:hover { background: #a93226; }
 
-        .btn-orange {
-            background: #e67e22;
-        }
-        .btn-orange:hover {
-            background: #ca6f1e;
-        }
+        .btn-orange { background: #e67e22; }
+        .btn-orange:hover { background: #ca6f1e; }
 
-        .btn-purple {
-            background: #7d3c98;
-        }
-        .btn-purple:hover {
-            background: #6c3483;
-        }
+        .btn-purple { background: #7d3c98; }
+        .btn-purple:hover { background: #6c3483; }
 
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 12px;
-        }
+        .btn-sm { padding: 6px 14px; font-size: 12px; }
 
         .pages-container {
             max-width: 210mm;
@@ -264,7 +228,7 @@
             border: 2px dashed #dde5e0;
         }
 
-        /* ----- BASE CARD STYLES (shared) ----- */
+        /* ----- BASE CARD STYLES ----- */
         .card {
             width: 100%;
             height: 100%;
@@ -273,8 +237,13 @@
             overflow: hidden;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.10);
             transition: all 0.2s;
-            background: #ffffff;
+            background: linear-gradient(145deg, #fffdf5 0%, #fff5e0 100%);
             border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        /* Slight tint variation for BOGOF cards */
+        .card[data-type="bogof"] {
+            background: linear-gradient(145deg, #f7fff9 0%, #eaf7ef 100%);
         }
 
         /* ----- CUT-OUT GUIDE (dashed rounded border) ----- */
@@ -316,54 +285,7 @@
             transform: scale(1.12);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
-        .card-delete:active {
-            transform: scale(0.95);
-        }
-
-        /* Logo Mode background image & overlays */
-        .card.logo-mode {
-            background-image: url('logo.jpeg');
-            background-repeat: no-repeat;
-            background-color: #fefaf0;
-        }
-
-        .card.logo-mode::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 248, 235, 0.82);
-            z-index: 0;
-            backdrop-filter: blur(1px);
-        }
-
-        /* Easter Mode background gradients & pattern */
-        .card.easter-mode {
-            background: linear-gradient(145deg, #fff9ed 0%, #fff2e0 100%);
-            position: relative;
-        }
-
-        .card.easter-mode::before {
-            content: "🐣🥚🌸";
-            position: absolute;
-            font-size: 70px;
-            opacity: 0.12;
-            bottom: 10px;
-            right: 10px;
-            white-space: pre;
-            pointer-events: none;
-            z-index: 0;
-            font-weight: normal;
-            transform: rotate(-5deg);
-        }
-
-        .card.easter-mode::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 20% 30%, rgba(255, 215, 150, 0.2) 0%, rgba(255, 240, 200, 0) 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
+        .card-delete:active { transform: scale(0.95); }
 
         /* Shared content layer */
         .content {
@@ -404,6 +326,7 @@
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
         }
 
+        /* Deal badge */
         .deal {
             font-size: 15px;
             font-weight: 900;
@@ -419,13 +342,8 @@
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
         }
 
-        .deal-hot {
-            background: #d62828;
-        }
-
-        .deal-easter {
-            background: #7b2cbf;
-        }
+        .deal-hot { background: var(--red-hot); }
+        .deal-bogof { background: var(--green-bright); }
 
         /* description area */
         .desc {
@@ -480,6 +398,26 @@
             color: #2c2b26;
         }
 
+        .save-bogof {
+            background: #b8e6c9;
+            color: #0a5332;
+        }
+
+        /* BOGOF "2 FOR 1" tag */
+        .bogof-tag {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 900;
+            color: #ffffff;
+            background: var(--red-hot);
+            padding: 3px 14px;
+            border-radius: 20px;
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+
         /* ----- FOOTER: Offer ends date ----- */
         .offer-footer {
             font-size: 13px;
@@ -504,106 +442,6 @@
             font-weight: 900;
         }
 
-        /* Easter specific decorative touches */
-        .easter-tag {
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            font-size: 24px;
-            opacity: 0.5;
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* Logo position classes (logo mode only) */
-        .logo-top-left {
-            background-position: 5% 8% !important;
-            background-size: 32% !important;
-        }
-        .logo-top-right {
-            background-position: 95% 8% !important;
-            background-size: 32% !important;
-        }
-        .logo-center {
-            background-position: center center !important;
-            background-size: 48% !important;
-        }
-        .logo-bottom-left {
-            background-position: 5% 92% !important;
-            background-size: 32% !important;
-        }
-        .logo-bottom-right {
-            background-position: 95% 92% !important;
-            background-size: 32% !important;
-        }
-
-        /* Easter side position */
-        .easter-side-left .content::before {
-            content: "🐰🌸 EASTER 🥚🐣";
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-            font-size: 28px;
-            font-weight: 800;
-            color: #e67e22;
-            opacity: 0.35;
-            white-space: nowrap;
-            letter-spacing: 3px;
-            font-family: 'Segoe UI', cursive;
-            pointer-events: none;
-            z-index: 4;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-            background: linear-gradient(135deg, #ffb347, #ff6b4a);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-stroke: 1px rgba(0, 0, 0, 0.1);
-        }
-
-        .easter-side-right .content::after {
-            content: "🐇✨ HOPPY DEALS ✨🐣";
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%) rotate(90deg);
-            font-size: 28px;
-            font-weight: 800;
-            color: #d45a2b;
-            opacity: 0.4;
-            white-space: nowrap;
-            letter-spacing: 2px;
-            font-family: monospace;
-            pointer-events: none;
-            z-index: 4;
-            background: linear-gradient(135deg, #f9a825, #fb8c00);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .card.easter-mode .header .brand {
-            color: #c35e1e;
-            text-shadow: 1px 1px 0 #ffe0a3;
-        }
-
-        /* page indicator */
-        .page-indicator {
-            text-align: center;
-            font-weight: 600;
-            color: #4a5b4e;
-            margin: 4px 0 8px;
-            font-size: 14px;
-        }
-
-        .page-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 6px;
-        }
-
         .import-stats {
             font-size: 13px;
             color: #2c3e2f;
@@ -613,52 +451,15 @@
             display: inline-block;
         }
 
-        /* Small logo preview chip */
-        .logo-preview {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #2c3e2f;
-        }
-        .logo-preview img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            border: 1px solid #cfdfd4;
-            border-radius: 8px;
-            background: #fff;
-            padding: 2px;
-        }
-        .logo-preview.visible { display: flex; }
-
         @media (max-width: 800px) {
-            .offer-footer {
-                font-size: 12px;
-            }
-            .offer-footer span {
-                padding: 2px 8px;
-            }
+            .offer-footer { font-size: 12px; }
+            .offer-footer span { padding: 2px 8px; }
         }
 
         @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .controls {
-                display: none;
-            }
-            .page-actions {
-                display: none;
-            }
-            .page-indicator {
-                display: none;
-            }
-            .card-delete {
-                display: none !important;
-            }
+            body { background: white; padding: 0; }
+            .controls { display: none; }
+            .card-delete { display: none !important; }
             .page {
                 box-shadow: none;
                 border-radius: 0;
@@ -680,9 +481,7 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
-            .pages-container {
-                gap: 0;
-            }
+            .pages-container { gap: 0; }
             .offer-footer {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
@@ -701,26 +500,19 @@
                 gap: 6mm;
                 min-height: auto;
             }
-            .controls {
-                flex-direction: column;
-            }
-            .control-group {
-                flex: 1 1 auto;
-                width: 100%;
-            }
+            .controls { flex-direction: column; }
+            .control-group { flex: 1 1 auto; width: 100%; }
             .file-upload-wrapper {
                 flex-direction: column;
                 align-items: stretch;
             }
-            .file-upload-wrapper input[type="file"] {
-                min-width: auto;
-            }
+            .file-upload-wrapper input[type="file"] { min-width: auto; }
         }
     </style>
 </head>
 <body>
 
-    <h1>🐣 XanaPlus Hot Deals — Logo Mode or Easter Offers 🐰</h1>
+    <h1>🏷️ XanaPlus Advert Studio — Hot Deals & BOGOF 🎁</h1>
 
     <div class="controls">
         <!-- Manual Entry -->
@@ -728,56 +520,23 @@
             <label>🎯 Product Description</label>
             <textarea id="desc" rows="1" placeholder="e.g. XanaPlus Organic Greens"></textarea>
         </div>
+
         <div class="control-group">
+            <label>🎨 Pricing Mode</label>
+            <div class="radio-switch" id="modeToggle">
+                <label><input type="radio" name="pricingMode" value="discount" checked /> <span>🏷️ Discount</span></label>
+                <label><input type="radio" name="pricingMode" value="bogof" /> <span>🎁 BOGOF</span></label>
+            </div>
+        </div>
+
+        <div class="control-group" id="oldPriceGroup">
             <label>💰 Old Price (KES)</label>
             <input id="oldPrice" type="number" placeholder="2500" />
         </div>
+
         <div class="control-group">
-            <label>✨ New Price (KES)</label>
+            <label id="newPriceLabel">✨ New Price (KES)</label>
             <input id="newPrice" type="number" placeholder="1799" />
-        </div>
-
-        <div class="control-group">
-            <label>🎨 Card Style</label>
-            <div class="radio-switch" id="styleToggle">
-                <label><input type="radio" name="cardStyle" value="logo" checked /> <span>🏷️ Logo Mode</span></label>
-                <label><input type="radio" name="cardStyle" value="easter" /> <span>🐇 Easter Offers</span></label>
-            </div>
-        </div>
-
-        <div class="control-group" id="positionGroup">
-            <label>📍 Logo Position (Logo Mode)</label>
-            <select id="logoPositionSelect">
-                <option value="center">Center</option>
-                <option value="top-left">Top Left</option>
-                <option value="top-right">Top Right</option>
-                <option value="bottom-left">Bottom Left</option>
-                <option value="bottom-right">Bottom Right</option>
-            </select>
-        </div>
-
-        <div class="control-group" id="easterSideGroup" style="display:none">
-            <label>🐣 Easter Text Side</label>
-            <select id="easterSideSelect">
-                <option value="left">Left Side (vertical)</option>
-                <option value="right">Right Side (vertical)</option>
-            </select>
-        </div>
-
-        <!-- Logo Image Upload -->
-        <div class="control-group" style="flex: 1 1 260px;">
-            <label>🖼️ Logo Image (optional — replaces logo.jpeg)</label>
-            <div class="file-upload-wrapper">
-                <input type="file" id="logoFileInput" accept="image/*" />
-                <button id="logoResetBtn" class="btn-secondary btn-sm" type="button">↺ Reset</button>
-            </div>
-            <div class="logo-preview" id="logoPreview">
-                <img id="logoPreviewImg" alt="Logo preview" />
-                <span id="logoPreviewText">Custom logo loaded</span>
-            </div>
-            <small style="display:block; font-size:11px; color:#888; margin-top:3px;">
-                If you don't upload a logo, the page tries to use <code>logo.jpeg</code> from the same folder.
-            </small>
         </div>
 
         <div class="control-group">
@@ -787,15 +546,14 @@
                 <input type="range" id="blurSlider" min="0" max="12" step="0.5" value="2.5" />
                 <span>12px</span>
             </div>
-            <small style="display:block; font-size:11px;">Drag to blur card content background (stylish glass effect)</small>
+            <small style="display:block; font-size:11px;">Blur behind card text (glass effect)</small>
         </div>
 
-        <!-- Default Offer Ends Date -->
         <div class="control-group" style="min-width:200px;">
             <label>📅 Default Offer Ends Date</label>
-            <input id="offerEndDate" type="text" placeholder="e.g. 30-04-26  or  30-04-2026" value="30-04-2026" />
+            <input id="offerEndDate" type="text" placeholder="e.g. 30-04-2026" value="30-04-2026" />
             <small style="display:block; font-size:11px; color:#888; margin-top:3px;">
-                Used when a card has no per-row date. Displayed as e.g. <em>30th April 2026</em>.
+                Used when a card has no per-row date. Displayed as <em>30th April 2026</em>.
             </small>
         </div>
 
@@ -806,17 +564,16 @@
 
         <!-- Excel Import -->
         <div class="control-group" style="flex: 1 1 100%; border-top: 1px solid #e0e8e3; padding-top: 14px; margin-top: 4px;">
-            <label>📊 Import from Excel (.xlsx / .xls) — columns: <strong>Description</strong>, <strong>was</strong>, <strong>Now</strong>, <strong>End Date</strong></label>
+            <label>📊 Import from Excel (.xlsx / .xls) — columns: <strong>Description</strong>, <strong>was</strong>, <strong>Now</strong>, <strong>End Date</strong>, <strong>Type</strong> (all optional except Description + Now)</label>
             <div class="file-upload-wrapper">
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" />
                 <button id="importExcelBtn" class="btn-orange">📥 Import & Generate Cards</button>
                 <span id="importStats" class="import-stats">0 cards loaded</span>
             </div>
             <small style="display:block; font-size:11px; color:#888; margin-top:6px;">
-                💡 <strong>End Date</strong> is optional. Accepts real Excel dates, or text like
-                <strong>30-09-26</strong>, <strong>30/09/2026</strong>, or ISO <strong>2026-09-30</strong>.
-                All dates are shown on the card as e.g. <em>30th September 2026</em>.
-                If a row has no date, the Default Offer Ends Date above is used.
+                💡 <strong>Type</strong> column: put <strong>BOGOF</strong> (or BOGO / Buy 1 Get 1 Free) to mark a row as BOGOF — only the "Now" price is used.<br>
+                💡 If "was" is blank, the row is automatically treated as BOGOF.<br>
+                💡 <strong>End Date</strong> accepts real Excel dates, or text like <strong>30-09-26</strong>, <strong>30/09/2026</strong>, or ISO <strong>2026-09-30</strong>.
             </small>
         </div>
     </div>
@@ -833,11 +590,9 @@
         const descInput = document.getElementById('desc');
         const oldPriceInput = document.getElementById('oldPrice');
         const newPriceInput = document.getElementById('newPrice');
-        const logoPositionSelect = document.getElementById('logoPositionSelect');
-        const easterSideSelect = document.getElementById('easterSideSelect');
-        const styleRadios = document.querySelectorAll('input[name="cardStyle"]');
-        const positionGroup = document.getElementById('positionGroup');
-        const easterSideGroup = document.getElementById('easterSideGroup');
+        const newPriceLabel = document.getElementById('newPriceLabel');
+        const oldPriceGroup = document.getElementById('oldPriceGroup');
+        const modeRadios = document.querySelectorAll('input[name="pricingMode"]');
         const blurSlider = document.getElementById('blurSlider');
         const addBtn = document.getElementById('addBtn');
         const clearBtn = document.getElementById('clearBtn');
@@ -846,19 +601,32 @@
         const importStats = document.getElementById('importStats');
         const offerEndDateInput = document.getElementById('offerEndDate');
 
-        const logoFileInput = document.getElementById('logoFileInput');
-        const logoResetBtn = document.getElementById('logoResetBtn');
-        const logoPreview = document.getElementById('logoPreview');
-        const logoPreviewImg = document.getElementById('logoPreviewImg');
-        const logoPreviewText = document.getElementById('logoPreviewText');
-
         const MAX_CARDS_PER_PAGE = 6;
 
-        // Global default offer end date (raw text). Parsed each render.
         let offerEndDateRaw = offerEndDateInput.value.trim() || '30-04-2026';
 
-        // Custom logo data URL (empty = use default logo.jpeg from CSS)
-        let customLogoDataUrl = '';
+        // ============================================================
+        //  Mode toggle
+        // ============================================================
+        function getCurrentMode() {
+            for (const r of modeRadios) if (r.checked) return r.value;
+            return 'discount';
+        }
+
+        function updateModeControls() {
+            const mode = getCurrentMode();
+            if (mode === 'bogof') {
+                oldPriceGroup.style.display = 'none';
+                newPriceLabel.textContent = '🎁 Price (KES)';
+                newPriceInput.placeholder = '2499';
+            } else {
+                oldPriceGroup.style.display = 'block';
+                newPriceLabel.textContent = '✨ New Price (KES)';
+                newPriceInput.placeholder = '1799';
+            }
+        }
+        modeRadios.forEach(r => r.addEventListener('change', updateModeControls));
+        updateModeControls();
 
         // ============================================================
         //  Date helpers
@@ -878,7 +646,6 @@
             }
         }
 
-        // "30th September 2026"
         function formatDateFriendly(d) {
             if (!d || isNaN(d.getTime())) return '';
             const day = d.getDate();
@@ -887,7 +654,6 @@
             return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
         }
 
-        // ISO date string "YYYY-MM-DD" (local, no timezone shift)
         function formatDateISO(d) {
             if (!d || isNaN(d.getTime())) return '';
             const y = d.getFullYear();
@@ -896,26 +662,18 @@
             return `${y}-${m}-${day}`;
         }
 
-        // Robust parser: returns a JS Date (local midnight) or null.
-        // Handles: Date objects, Excel serial numbers, ISO strings, dd-mm-yy, dd/mm/yyyy, etc.
         function parseEndDate(value) {
             if (value === null || value === undefined || value === '') return null;
 
-            // 1) JS Date object
             if (value instanceof Date && !isNaN(value.getTime())) {
                 return new Date(value.getFullYear(), value.getMonth(), value.getDate());
             }
 
-            // 2) Excel serial number (SheetJS stores dates as serials when cellDates:false)
             if (typeof value === 'number' && isFinite(value)) {
-                // Prefer SheetJS's own conversion (handles the 1900 leap-year quirk)
                 if (typeof XLSX !== 'undefined' && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
                     const dc = XLSX.SSF.parse_date_code(value);
-                    if (dc && dc.y && dc.m && dc.d) {
-                        return new Date(dc.y, dc.m - 1, dc.d);
-                    }
+                    if (dc && dc.y && dc.m && dc.d) return new Date(dc.y, dc.m - 1, dc.d);
                 }
-                // Fallback: Excel epoch is 1899-12-30 (accounting for the fictional 1900-02-29)
                 const epochUTC = Date.UTC(1899, 11, 30);
                 const ms = epochUTC + Math.round(value) * 86400000;
                 const d = new Date(ms);
@@ -925,47 +683,30 @@
                 return null;
             }
 
-            // 3) String
             const str = String(value).trim();
             if (!str) return null;
 
-            // 3a) ISO YYYY-MM-DD (or YYYY/MM/DD or YYYY.MM.DD)
             let m = str.match(/^(\d{4})[\-\/.](\d{1,2})[\-\/.](\d{1,2})(?:[ T].*)?$/);
             if (m) {
                 const y = parseInt(m[1], 10);
                 const mo = parseInt(m[2], 10);
                 const d = parseInt(m[3], 10);
-                if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) {
-                    return new Date(y, mo - 1, d);
-                }
+                if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) return new Date(y, mo - 1, d);
             }
 
-            // 3b) D-M-Y variants (dd-mm-yy, dd/mm/yyyy, dd.mm.yy...)
             m = str.match(/^(\d{1,2})[\-\/.](\d{1,2})[\-\/.](\d{2,4})(?:[ T].*)?$/);
             if (m) {
-                let a = parseInt(m[1], 10);   // first number
-                let b = parseInt(m[2], 10);   // second number
+                let a = parseInt(m[1], 10);
+                let b = parseInt(m[2], 10);
                 let y = parseInt(m[3], 10);
                 if (y < 100) y += 2000;
-
                 let day, month;
-                if (a > 12 && b <= 12) {
-                    // unambiguous: DD-MM
-                    day = a; month = b;
-                } else if (b > 12 && a <= 12) {
-                    // unambiguous: MM-DD
-                    day = b; month = a;
-                } else {
-                    // ambiguous — default to DD-MM (user's stated format)
-                    day = a; month = b;
-                }
-
-                if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
-                    return new Date(y, month - 1, day);
-                }
+                if (a > 12 && b <= 12) { day = a; month = b; }
+                else if (b > 12 && a <= 12) { day = b; month = a; }
+                else { day = a; month = b; } // default DD-MM
+                if (day >= 1 && day <= 31 && month >= 1 && month <= 12) return new Date(y, month - 1, day);
             }
 
-            // 3c) "30th September 2026" / "30 Sep 2026" etc.
             m = str.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s+(\d{2,4})$/);
             if (m) {
                 const d = parseInt(m[1], 10);
@@ -973,12 +714,9 @@
                 let y = parseInt(m[3], 10);
                 if (y < 100) y += 2000;
                 const idx = MONTH_NAMES.findIndex(n => n.toLowerCase().slice(0, 3) === monName);
-                if (idx !== -1 && d >= 1 && d <= 31) {
-                    return new Date(y, idx, d);
-                }
+                if (idx !== -1 && d >= 1 && d <= 31) return new Date(y, idx, d);
             }
 
-            // 3d) Native fallback
             const parsed = new Date(str);
             if (!isNaN(parsed.getTime())) {
                 return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
@@ -986,29 +724,10 @@
             return null;
         }
 
-        // Public helper: parse & format. If unparseable, returns the original trimmed text.
-        function displayDate(raw) {
-            if (!raw) return '';
-            const trimmed = String(raw).trim();
-            if (!trimmed) return '';
-            const d = parseEndDate(trimmed);
-            if (d) return formatDateFriendly(d);
-            return trimmed; // fall back to whatever the user typed
-        }
-
         // ============================================================
-        //  Other helpers
+        //  Helpers
         // ============================================================
-        function getCurrentStyle() {
-            for (const r of styleRadios) {
-                if (r.checked) return r.value;
-            }
-            return 'logo';
-        }
-
-        function getBlurValue() {
-            return parseFloat(blurSlider.value) || 0;
-        }
+        function getBlurValue() { return parseFloat(blurSlider.value) || 0; }
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -1020,38 +739,7 @@
             });
         }
 
-        function formatKES(val) {
-            return Number(val).toLocaleString();
-        }
-
-        function updateStyleControls() {
-            const style = getCurrentStyle();
-            if (style === 'logo') {
-                positionGroup.style.display = 'block';
-                easterSideGroup.style.display = 'none';
-            } else {
-                positionGroup.style.display = 'none';
-                easterSideGroup.style.display = 'block';
-            }
-        }
-        styleRadios.forEach(r => r.addEventListener('change', updateStyleControls));
-        updateStyleControls();
-
-        // ============================================================
-        //  Logo application
-        // ============================================================
-        function applyLogoToCard(cardEl) {
-            if (!cardEl.classList.contains('logo-mode')) return;
-            if (customLogoDataUrl) {
-                cardEl.style.backgroundImage = `url("${customLogoDataUrl}")`;
-            } else {
-                cardEl.style.backgroundImage = '';
-            }
-        }
-
-        function refreshAllLogos() {
-            document.querySelectorAll('#pagesContainer .card').forEach(applyLogoToCard);
-        }
+        function formatKES(val) { return Number(val).toLocaleString(); }
 
         // ============================================================
         //  Blur
@@ -1089,95 +777,79 @@
 
         // ============================================================
         //  Build a card DOM element
-        //  endDateRaw: raw string from Excel/manual. We always re-format
-        //  for display, and store ISO back onto the card so re-renders
-        //  (blur slider, delete, etc.) keep the exact date.
+        //  type: 'discount' or 'bogof'
+        //  For BOGOF, oldVal is ignored.
         // ============================================================
-        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide, endDateRaw) {
-            const saveAmount = oldVal - newVal;
+        function buildCard(descText, oldVal, newVal, type, endDateRaw) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.type = type;
 
-            // Resolve display date:
-            //   - per-card endDateRaw (from Excel or previous render) wins
-            //   - else fall back to the global default
+            // Resolve date
             const rawForThisCard = (endDateRaw && String(endDateRaw).trim()) ?
                 String(endDateRaw).trim() :
                 (offerEndDateRaw || '');
-
             const parsed = parseEndDate(rawForThisCard);
             const displayDate = parsed ? formatDateFriendly(parsed) : (rawForThisCard || '');
 
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            // Persist the per-card date as ISO (or raw if unparseable)
             if (endDateRaw && String(endDateRaw).trim()) {
                 const stored = parsed ? formatDateISO(parsed) : String(endDateRaw).trim();
                 card.dataset.customDate = stored;
             }
 
-            // style classes
-            if (style === 'logo') {
-                card.classList.add('logo-mode');
-                const pos = logoPos || 'center';
-                let pc = '';
-                switch (pos) {
-                    case 'top-left': pc = 'logo-top-left'; break;
-                    case 'top-right': pc = 'logo-top-right'; break;
-                    case 'bottom-left': pc = 'logo-bottom-left'; break;
-                    case 'bottom-right': pc = 'logo-bottom-right'; break;
-                    default: pc = 'logo-center';
-                }
-                card.classList.add(pc);
-                card.classList.remove('easter-side-left', 'easter-side-right');
+            // Label + badge class
+            let dealLabel, dealClass;
+            if (type === 'bogof') {
+                dealLabel = '🎁 BUY 1 GET 1 FREE 🎁';
+                dealClass = 'deal deal-bogof';
             } else {
-                card.classList.add('easter-mode');
-                card.classList.remove('logo-top-left', 'logo-top-right', 'logo-center', 'logo-bottom-left',
-                    'logo-bottom-right');
-                const side = easterSide || 'left';
-                if (side === 'left') {
-                    card.classList.add('easter-side-left');
-                    card.classList.remove('easter-side-right');
-                } else {
-                    card.classList.add('easter-side-right');
-                    card.classList.remove('easter-side-left');
-                }
+                dealLabel = 'HOT DEALS';
+                dealClass = 'deal deal-hot';
             }
 
-            let dealLabel = 'HOT DEALS';
-            let dealClass = 'deal deal-hot';
-            if (style === 'easter') {
-                dealLabel = '🐣 EASTER BONANZA 🐰';
-                dealClass = 'deal deal-easter';
+            // Prices HTML
+            let pricesHtml = '';
+            if (type === 'bogof') {
+                pricesHtml = `
+                    <div class="bogof-tag">2 FOR 1</div>
+                    <div class="new">KES ${formatKES(newVal)}</div>
+                    <div class="save save-bogof">🎉 Buy one, get one FREE 🎉</div>
+                `;
+            } else {
+                const saveAmount = oldVal - newVal;
+                pricesHtml = `
+                    <div class="old">KES ${formatKES(oldVal)}</div>
+                    <div class="new">KES ${formatKES(newVal)}</div>
+                    <div class="save">✨ Save KES ${formatKES(saveAmount)} ✨</div>
+                `;
             }
 
+            // Footer
             let footerHtml = '';
             if (displayDate) {
                 footerHtml = `
-              <div class="offer-footer">
-                <span>🎯 Offer ends: <span class="date-highlight">${escapeHtml(displayDate)}</span></span>
-              </div>
-            `;
+                    <div class="offer-footer">
+                        <span>🎯 Offer ends: <span class="date-highlight">${escapeHtml(displayDate)}</span></span>
+                    </div>
+                `;
             }
 
             card.innerHTML = `
-            <div class="cut-border"></div>
-            <div class="content">
-              <div class="header">
-                <div class="brand">XanaPlus</div>
-                <div class="${dealClass}">${dealLabel}</div>
-              </div>
-              <div class="desc">${escapeHtml(descText)}</div>
-              <div class="prices">
-                <div class="old">KES ${formatKES(oldVal)}</div>
-                <div class="new">KES ${formatKES(newVal)}</div>
-                <div class="save">✨ Save KES ${formatKES(saveAmount)} ✨</div>
-                ${footerHtml}
-              </div>
-            </div>
-          `;
+                <div class="cut-border"></div>
+                <div class="content">
+                    <div class="header">
+                        <div class="brand">XanaPlus</div>
+                        <div class="${dealClass}">${dealLabel}</div>
+                    </div>
+                    <div class="desc">${escapeHtml(descText)}</div>
+                    <div class="prices">
+                        ${pricesHtml}
+                        ${footerHtml}
+                    </div>
+                </div>
+            `;
 
-            applyLogoToCard(card);
-
+            // Delete button
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'card-delete';
             deleteBtn.type = 'button';
@@ -1192,12 +864,6 @@
             card.appendChild(deleteBtn);
 
             applyBlurToCard(card, getBlurValue());
-
-            if (style === 'easter') {
-                const d = card.querySelector('.desc');
-                if (d) d.style.fontSize = '17px';
-            }
-
             return card;
         }
 
@@ -1224,15 +890,15 @@
                 const emptyPage = document.createElement('div');
                 emptyPage.className = 'page';
                 emptyPage.innerHTML = `
-              <div class="grid">
-                <div class="grid-empty">
-                  <div>
-                    <div style="font-size:48px; margin-bottom:12px;">📋</div>
-                    <div>No adverts yet.<br />Add manually above or import from Excel.</div>
-                  </div>
-                </div>
-              </div>
-            `;
+                    <div class="grid">
+                        <div class="grid-empty">
+                            <div>
+                                <div style="font-size:48px; margin-bottom:12px;">📋</div>
+                                <div>No adverts yet.<br />Add manually above or import from Excel.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 pagesContainer.appendChild(emptyPage);
                 updateStats();
                 return;
@@ -1256,11 +922,9 @@
                 chunk.forEach(data => {
                     const card = buildCard(
                         data.desc,
-                        data.oldVal,
+                        data.oldVal || 0,
                         data.newVal,
-                        data.style,
-                        data.logoPos,
-                        data.easterSide,
+                        data.type || 'discount',
                         data.endDate || ''
                     );
                     grid.appendChild(card);
@@ -1285,22 +949,15 @@
                 const oldEl = content.querySelector('.old');
                 const newEl = content.querySelector('.new');
                 const desc = descEl ? descEl.textContent.trim() : '';
+
                 let oV = 0, nV = 0;
                 if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g, '')) || 0; }
                 if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g, '')) || 0; }
-                let st = 'logo';
-                if (c.classList.contains('easter-mode')) st = 'easter';
-                let lp = 'center';
-                if (c.classList.contains('logo-top-left')) lp = 'top-left';
-                else if (c.classList.contains('logo-top-right')) lp = 'top-right';
-                else if (c.classList.contains('logo-bottom-left')) lp = 'bottom-left';
-                else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
-                let es = 'left';
-                if (c.classList.contains('easter-side-right')) es = 'right';
 
+                const type = c.dataset.type || 'discount';
                 const endDate = c.dataset.customDate || '';
 
-                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es, endDate });
+                cardData.push({ desc, oldVal: oV, newVal: nV, type, endDate });
             });
             return cardData;
         }
@@ -1315,25 +972,30 @@
         // ============================================================
         function addCard() {
             const descText = descInput.value.trim();
-            const oldVal = parseFloat(oldPriceInput.value);
             const newVal = parseFloat(newPriceInput.value);
+            const mode = getCurrentMode();
 
             if (!descText) { alert('Please enter product description'); return; }
-            if (isNaN(oldVal) || isNaN(newVal) || oldVal <= 0 || newVal <= 0) {
-                alert('Please enter valid positive old and new prices');
-                return;
-            }
-            if (newVal >= oldVal) {
-                alert('New price must be lower than old price (Hot Deal!)');
+            if (isNaN(newVal) || newVal <= 0) {
+                alert('Please enter a valid positive price');
                 return;
             }
 
-            const style = getCurrentStyle();
-            const logoPos = logoPositionSelect.value;
-            const easterSide = easterSideSelect.value;
+            let oldVal = 0;
+            if (mode === 'discount') {
+                oldVal = parseFloat(oldPriceInput.value);
+                if (isNaN(oldVal) || oldVal <= 0) {
+                    alert('Please enter a valid positive old price');
+                    return;
+                }
+                if (newVal >= oldVal) {
+                    alert('New price must be lower than old price (Hot Deal!)');
+                    return;
+                }
+            }
 
             const cardData = getAllCardDataFromDOM();
-            cardData.push({ desc: descText, oldVal, newVal, style, logoPos, easterSide, endDate: '' });
+            cardData.push({ desc: descText, oldVal, newVal, type: mode, endDate: '' });
             renderCardsFromData(cardData);
         }
 
@@ -1347,44 +1009,18 @@
         }
 
         // ============================================================
-        //  Logo upload
-        // ============================================================
-        logoFileInput.addEventListener('change', function() {
-            const file = this.files && this.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file (PNG, JPG, SVG, WEBP...).');
-                this.value = '';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                customLogoDataUrl = ev.target.result;
-                logoPreviewImg.src = customLogoDataUrl;
-                logoPreviewText.textContent = 'Custom logo: ' + file.name;
-                logoPreview.classList.add('visible');
-                refreshAllLogos();
-            };
-            reader.readAsDataURL(file);
-        });
-
-        logoResetBtn.addEventListener('click', function() {
-            customLogoDataUrl = '';
-            logoFileInput.value = '';
-            logoPreviewImg.src = '';
-            logoPreview.classList.remove('visible');
-            document.querySelectorAll('#pagesContainer .card.logo-mode').forEach(c => {
-                c.style.backgroundImage = '';
-            });
-            refreshAllLogos();
-        });
-
-        // ============================================================
         //  Excel Import
-        //  NOTE: we do NOT use cellDates:true, because depending on the
-        //  SheetJS build/locale it can shift dates by one day. Instead
-        //  we read raw values and use XLSX.SSF.parse_date_code() for
-        //  numeric serials — that's the most reliable conversion.
+        //  Columns:
+        //    Description (required)
+        //    Now (required) — single price
+        //    was (optional) — if present + row not BOGOF → discount
+        //    Type (optional) — set to BOGOF to force BOGOF
+        //    End Date (optional)
+        //
+        //  Detection rules per row (in order):
+        //    1. If Type contains "bogof"/"bogo"/"buy 1 get 1" → BOGOF
+        //    2. Else if was is blank → BOGOF
+        //    3. Else → Discount (must have valid was > Now)
         // ============================================================
         function importExcel() {
             const file = excelFileInput.files[0];
@@ -1419,7 +1055,8 @@
 
                     const descCol = findCol(['Description', 'description', 'Product', 'product', 'Item', 'item']);
                     const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original', 'original']);
-                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current', 'current']);
+                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current', 'current', 'Price', 'price']);
+                    const typeCol = findCol(['Type', 'type', 'Mode', 'mode', 'Offer Type', 'offer type', 'Promo Type', 'promo type']);
                     const dateCol = findCol([
                         'End Date', 'end date', 'EndDate', 'enddate',
                         'Offer Ends', 'offer ends', 'Offer End Date', 'offer end date',
@@ -1427,30 +1064,52 @@
                         'Valid Until', 'valid until', 'ValidUntil'
                     ]);
 
-                    if (!descCol) { alert('Could not find a "Description" column.\n\nAvailable columns: ' + headers.join(', ')); return; }
-                    if (!wasCol)  { alert('Could not find a "was" (old price) column.\n\nAvailable columns: ' + headers.join(', ')); return; }
-                    if (!nowCol)  { alert('Could not find a "Now" (new price) column.\n\nAvailable columns: ' + headers.join(', ')); return; }
-
-                    const style = getCurrentStyle();
-                    const logoPos = logoPositionSelect.value;
-                    const easterSide = easterSideSelect.value;
+                    if (!descCol) {
+                        alert('Could not find a "Description" column.\n\nAvailable columns: ' + headers.join(', '));
+                        return;
+                    }
+                    if (!nowCol) {
+                        alert('Could not find a "Now" / "Price" column.\n\nAvailable columns: ' + headers.join(', '));
+                        return;
+                    }
 
                     const cardData = [];
                     let skipped = 0;
                     let dateFound = 0;
+                    let bogofCount = 0;
 
                     for (const row of json) {
                         const desc = String(row[descCol] || '').trim();
-                        const wasStr = String(row[wasCol] || '').replace(/[^0-9.]/g, '');
-                        const nowStr = String(row[nowCol] || '').replace(/[^0-9.]/g, '');
-
                         if (!desc) { skipped++; continue; }
-                        const wasVal = parseFloat(wasStr);
-                        const nowVal = parseFloat(nowStr);
-                        if (isNaN(wasVal) || isNaN(nowVal) || wasVal <= 0 || nowVal <= 0) { skipped++; continue; }
-                        if (nowVal >= wasVal) { skipped++; continue; }
 
-                        // Parse per-row end date (may be a serial number, ISO string, dd-mm-yy string, etc.)
+                        const nowStr = String(row[nowCol] || '').replace(/[^0-9.]/g, '');
+                        const nowVal = parseFloat(nowStr);
+                        if (isNaN(nowVal) || nowVal <= 0) { skipped++; continue; }
+
+                        const wasStr = wasCol ? String(row[wasCol] || '').replace(/[^0-9.]/g, '') : '';
+
+                        // Determine row type
+                        let rowType = 'discount';
+                        if (typeCol) {
+                            const tv = String(row[typeCol] || '').trim().toLowerCase();
+                            if (tv.includes('bogof') || tv.includes('bogo') ||
+                                tv.includes('buy one get one') || tv.includes('buy 1 get 1')) {
+                                rowType = 'bogof';
+                            }
+                        } else if (!wasCol || !wasStr) {
+                            rowType = 'bogof';
+                        }
+
+                        let wasVal = 0;
+                        if (rowType === 'discount') {
+                            wasVal = parseFloat(wasStr);
+                            if (isNaN(wasVal) || wasVal <= 0) { skipped++; continue; }
+                            if (nowVal >= wasVal) { skipped++; continue; }
+                        } else {
+                            bogofCount++;
+                        }
+
+                        // Date
                         let endDateISO = '';
                         if (dateCol && row[dateCol] !== undefined && row[dateCol] !== '') {
                             const parsed = parseEndDate(row[dateCol]);
@@ -1464,15 +1123,13 @@
                             desc,
                             oldVal: wasVal,
                             newVal: nowVal,
-                            style: style,
-                            logoPos: logoPos,
-                            easterSide: easterSide,
+                            type: rowType,
                             endDate: endDateISO
                         });
                     }
 
                     if (cardData.length === 0) {
-                        alert(`No valid rows found. Please ensure columns have positive numbers with "was" > "Now".\n\n${skipped} rows skipped.`);
+                        alert(`No valid rows found. Please check your columns.\n\n${skipped} rows skipped.`);
                         return;
                     }
 
@@ -1492,9 +1149,9 @@
                     renderCardsFromData(finalData);
 
                     let summary = `✅ Successfully imported ${cardData.length} card(s).`;
+                    if (bogofCount > 0) summary += `\n🎁 ${bogofCount} BOGOF card(s).`;
                     if (dateFound > 0) summary += `\n📅 ${dateFound} card(s) have their own End Date.`;
-                    if (dateCol && dateFound === 0) summary += `\n⚠️ An "End Date" column was found but no valid dates were parsed — the default date will be used.`;
-                    if (skipped > 0) summary += `\n⚠️ ${skipped} row(s) were skipped due to invalid data.`;
+                    if (skipped > 0) summary += `\n⚠️ ${skipped} row(s) were skipped.`;
                     alert(summary);
 
                 } catch (err) {
@@ -1626,7 +1283,7 @@
         }
         initEmpty();
 
-        // Demo cards after a short delay
+        // Demo cards
         setTimeout(() => {
             const count = getCardCount();
             if (count === 0) {
@@ -1634,28 +1291,23 @@
                     desc: 'XanaPlus Organic Greens',
                     oldVal: 3499,
                     newVal: 1999,
-                    style: 'easter',
-                    logoPos: 'center',
-                    easterSide: 'right',
+                    type: 'discount',
                     endDate: ''
                 }, {
                     desc: 'XanaPlus Energy Capsules',
-                    oldVal: 4500,
-                    newVal: 2999,
-                    style: 'logo',
-                    logoPos: 'top-right',
-                    easterSide: 'left',
+                    oldVal: 0,
+                    newVal: 2499,
+                    type: 'bogof',
                     endDate: '2026-09-30'
                 }];
                 renderCardsFromData(cardData);
             }
         }, 300);
 
-        console.log('🐣 XanaPlus Advert Studio loaded.');
+        console.log('🏷️ XanaPlus Advert Studio loaded.');
+        console.log('🎁 BOGOF + Discount modes available. Switch via the Pricing Mode toggle.');
         console.log('🗓️ End dates display as e.g. "30th September 2026".');
-        console.log('🖼️ Upload a logo with "Logo Image" — otherwise logo.jpeg must sit next to the HTML.');
-        console.log('📊 Excel columns: Description, was, Now, End Date (optional).');
-        console.log('✂️ Dashed cut borders. ✕ per-card delete (hidden from PDF & print).');
+        console.log('📊 Excel: Description, Now, was (optional), Type (optional), End Date (optional).');
     </script>
 </body>
 </html>
