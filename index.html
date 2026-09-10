@@ -287,6 +287,39 @@
             z-index: 20;
         }
 
+        /* ----- PER-CARD DELETE BUTTON ----- */
+        .card-delete {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #e63946;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            font-size: 16px;
+            font-weight: 900;
+            line-height: 1;
+            padding: 0;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, background 0.15s ease;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+        .card-delete:hover {
+            background: #b5121b;
+            transform: scale(1.12);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .card-delete:active {
+            transform: scale(0.95);
+        }
+
         /* Logo Mode background image & overlays (transparent watermark style) */
         .card.logo-mode {
             background: url('logo.jpeg') center center / contain no-repeat;
@@ -607,6 +640,9 @@
             .page-indicator {
                 display: none;
             }
+            .card-delete {
+                display: none !important;
+            }
             .page {
                 box-shadow: none;
                 border-radius: 0;
@@ -837,6 +873,20 @@
         blurSlider.addEventListener('input', updateAllCardsBlur);
 
         // ============================================================
+        //  Delete a single card (rebuilds pages from remaining data)
+        // ============================================================
+        function deleteCard(cardEl) {
+            const allCards = Array.from(document.querySelectorAll('#pagesContainer .card'));
+            const idx = allCards.indexOf(cardEl);
+            if (idx === -1) return;
+            if (!confirm('Delete this advert? You can add it again corrected afterwards.')) return;
+
+            const cardData = getAllCardDataFromDOM();
+            cardData.splice(idx, 1);
+            renderCardsFromData(cardData);
+        }
+
+        // ============================================================
         //  Build a card DOM element
         // ============================================================
         function buildCard(descText, oldVal, newVal, style, logoPos, easterSide, dateStr) {
@@ -917,6 +967,20 @@
               </div>
             </div>
           `;
+
+            // ----- Delete button (top-right, inside cut border) -----
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'card-delete';
+            deleteBtn.type = 'button';
+            deleteBtn.textContent = '✕';
+            deleteBtn.title = 'Delete this card';
+            deleteBtn.setAttribute('aria-label', 'Delete this card');
+            deleteBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteCard(card);
+            });
+            card.appendChild(deleteBtn);
 
             // apply current blur
             applyBlurToCard(card, getBlurValue());
@@ -1209,6 +1273,7 @@
 
         // ============================================================
         //  PDF Export – all pages as one PDF with multiple pages
+        //  (Delete buttons are excluded from the export)
         // ============================================================
         async function downloadPDF() {
             const pages = document.querySelectorAll('#pagesContainer .page');
@@ -1228,7 +1293,8 @@
                         backgroundColor: '#ffffff',
                         useCORS: true,
                         logging: false,
-                        allowTaint: true
+                        allowTaint: true,
+                        ignoreElements: (el) => el.classList && el.classList.contains('card-delete')
                     });
                     const imgData = canvas.toDataURL('image/png');
                     const pdfWidth = 210;
@@ -1248,6 +1314,7 @@
 
         // ============================================================
         //  Export individual pages as separate PDFs
+        //  (Delete buttons are excluded from the export)
         // ============================================================
         async function downloadIndividualPDFs() {
             const pages = document.querySelectorAll('#pagesContainer .page');
@@ -1266,7 +1333,8 @@
                         backgroundColor: '#ffffff',
                         useCORS: true,
                         logging: false,
-                        allowTaint: true
+                        allowTaint: true,
+                        ignoreElements: (el) => el.classList && el.classList.contains('card-delete')
                     });
                     const imgData = canvas.toDataURL('image/png');
                     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1355,6 +1423,7 @@
         console.log('📅 Offer end date footer: update the date field to refresh all cards.');
         console.log('📊 Import Excel with columns: Description, was, Now');
         console.log('✂️ Dashed cut borders around each card. No page-number footer.');
+        console.log('✕ Each card has a red delete button (top-right) to remove a single card.');
     </script>
 </body>
 </html>
