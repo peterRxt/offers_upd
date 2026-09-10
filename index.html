@@ -320,9 +320,10 @@
             transform: scale(0.95);
         }
 
-        /* Logo Mode background image & overlays (transparent watermark style) */
+        /* Logo Mode background image & overlays */
         .card.logo-mode {
-            background: url('logo.jpeg') center center / contain no-repeat;
+            background-image: url('logo.jpeg');
+            background-repeat: no-repeat;
             background-color: #fefaf0;
         }
 
@@ -372,7 +373,6 @@
             display: flex;
             flex-direction: column;
             backdrop-filter: blur(0px);
-            /* dynamic blur applied via JS style */
             background: rgba(255, 255, 255, 0.75);
             border-radius: 20px;
             padding: 6mm 5mm;
@@ -404,7 +404,6 @@
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
         }
 
-        /* Base deal badge */
         .deal {
             font-size: 15px;
             font-weight: 900;
@@ -420,12 +419,10 @@
             text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.25);
         }
 
-        /* Vibrant solid colour for HOT DEALS */
         .deal-hot {
             background: #d62828;
         }
 
-        /* Vibrant solid colour for Easter badge */
         .deal-easter {
             background: #7b2cbf;
         }
@@ -616,7 +613,26 @@
             display: inline-block;
         }
 
-        /* Responsive tweaks for footer */
+        /* Small logo preview chip */
+        .logo-preview {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #2c3e2f;
+        }
+        .logo-preview img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border: 1px solid #cfdfd4;
+            border-radius: 8px;
+            background: #fff;
+            padding: 2px;
+        }
+        .logo-preview.visible { display: flex; }
+
         @media (max-width: 800px) {
             .offer-footer {
                 font-size: 12px;
@@ -748,6 +764,22 @@
             </select>
         </div>
 
+        <!-- Logo Image Upload -->
+        <div class="control-group" style="flex: 1 1 260px;">
+            <label>🖼️ Logo Image (optional — replaces logo.jpeg)</label>
+            <div class="file-upload-wrapper">
+                <input type="file" id="logoFileInput" accept="image/*" />
+                <button id="logoResetBtn" class="btn-secondary btn-sm" type="button">↺ Reset</button>
+            </div>
+            <div class="logo-preview" id="logoPreview">
+                <img id="logoPreviewImg" alt="Logo preview" />
+                <span id="logoPreviewText">Custom logo loaded</span>
+            </div>
+            <small style="display:block; font-size:11px; color:#888; margin-top:3px;">
+                If you don't upload a logo, the page tries to use <code>logo.jpeg</code> from the same folder.
+            </small>
+        </div>
+
         <div class="control-group">
             <label>🌀 Background Blur Magnitude</label>
             <div class="blur-slider">
@@ -758,11 +790,13 @@
             <small style="display:block; font-size:11px;">Drag to blur card content background (stylish glass effect)</small>
         </div>
 
-        <!-- Offer Ends Date -->
-        <div class="control-group" style="min-width:180px;">
-            <label>📅 Offer Ends Date</label>
-            <input id="offerEndDate" type="text" placeholder="e.g. 30th April 2026" value="30th April 2026" />
-            <small style="display:block; font-size:11px; color:#888; margin-top:3px;">Shown on all card footers</small>
+        <!-- Default Offer Ends Date -->
+        <div class="control-group" style="min-width:200px;">
+            <label>📅 Default Offer Ends Date</label>
+            <input id="offerEndDate" type="text" placeholder="e.g. 30-04-26  or  30-04-2026" value="30-04-2026" />
+            <small style="display:block; font-size:11px; color:#888; margin-top:3px;">
+                Used when a card has no per-row date. Displayed as e.g. <em>30th April 2026</em>.
+            </small>
         </div>
 
         <div class="control-group" style="flex: 0 0 auto; display: flex; gap: 8px; flex-wrap: wrap;">
@@ -772,12 +806,18 @@
 
         <!-- Excel Import -->
         <div class="control-group" style="flex: 1 1 100%; border-top: 1px solid #e0e8e3; padding-top: 14px; margin-top: 4px;">
-            <label>📊 Import from Excel (.xlsx / .xls) — columns: <strong>Description</strong>, <strong>was</strong>, <strong>Now</strong></label>
+            <label>📊 Import from Excel (.xlsx / .xls) — columns: <strong>Description</strong>, <strong>was</strong>, <strong>Now</strong>, <strong>End Date</strong></label>
             <div class="file-upload-wrapper">
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls" />
                 <button id="importExcelBtn" class="btn-orange">📥 Import & Generate Cards</button>
                 <span id="importStats" class="import-stats">0 cards loaded</span>
             </div>
+            <small style="display:block; font-size:11px; color:#888; margin-top:6px;">
+                💡 <strong>End Date</strong> is optional. Accepts real Excel dates, or text like
+                <strong>30-09-26</strong>, <strong>30/09/2026</strong>, or ISO <strong>2026-09-30</strong>.
+                All dates are shown on the card as e.g. <em>30th September 2026</em>.
+                If a row has no date, the Default Offer Ends Date above is used.
+            </small>
         </div>
     </div>
 
@@ -806,13 +846,158 @@
         const importStats = document.getElementById('importStats');
         const offerEndDateInput = document.getElementById('offerEndDate');
 
+        const logoFileInput = document.getElementById('logoFileInput');
+        const logoResetBtn = document.getElementById('logoResetBtn');
+        const logoPreview = document.getElementById('logoPreview');
+        const logoPreviewImg = document.getElementById('logoPreviewImg');
+        const logoPreviewText = document.getElementById('logoPreviewText');
+
         const MAX_CARDS_PER_PAGE = 6;
 
-        // Global offer end date (default)
-        let offerEndDate = offerEndDateInput.value.trim() || '30th April 2026';
+        // Global default offer end date (raw text). Parsed each render.
+        let offerEndDateRaw = offerEndDateInput.value.trim() || '30-04-2026';
+
+        // Custom logo data URL (empty = use default logo.jpeg from CSS)
+        let customLogoDataUrl = '';
 
         // ============================================================
-        //  Helpers
+        //  Date helpers
+        // ============================================================
+        const MONTH_NAMES = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        function getOrdinalSuffix(day) {
+            if (day >= 11 && day <= 13) return 'th';
+            switch (day % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        }
+
+        // "30th September 2026"
+        function formatDateFriendly(d) {
+            if (!d || isNaN(d.getTime())) return '';
+            const day = d.getDate();
+            const month = MONTH_NAMES[d.getMonth()];
+            const year = d.getFullYear();
+            return `${day}${getOrdinalSuffix(day)} ${month} ${year}`;
+        }
+
+        // ISO date string "YYYY-MM-DD" (local, no timezone shift)
+        function formatDateISO(d) {
+            if (!d || isNaN(d.getTime())) return '';
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        // Robust parser: returns a JS Date (local midnight) or null.
+        // Handles: Date objects, Excel serial numbers, ISO strings, dd-mm-yy, dd/mm/yyyy, etc.
+        function parseEndDate(value) {
+            if (value === null || value === undefined || value === '') return null;
+
+            // 1) JS Date object
+            if (value instanceof Date && !isNaN(value.getTime())) {
+                return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+            }
+
+            // 2) Excel serial number (SheetJS stores dates as serials when cellDates:false)
+            if (typeof value === 'number' && isFinite(value)) {
+                // Prefer SheetJS's own conversion (handles the 1900 leap-year quirk)
+                if (typeof XLSX !== 'undefined' && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
+                    const dc = XLSX.SSF.parse_date_code(value);
+                    if (dc && dc.y && dc.m && dc.d) {
+                        return new Date(dc.y, dc.m - 1, dc.d);
+                    }
+                }
+                // Fallback: Excel epoch is 1899-12-30 (accounting for the fictional 1900-02-29)
+                const epochUTC = Date.UTC(1899, 11, 30);
+                const ms = epochUTC + Math.round(value) * 86400000;
+                const d = new Date(ms);
+                if (!isNaN(d.getTime())) {
+                    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+                }
+                return null;
+            }
+
+            // 3) String
+            const str = String(value).trim();
+            if (!str) return null;
+
+            // 3a) ISO YYYY-MM-DD (or YYYY/MM/DD or YYYY.MM.DD)
+            let m = str.match(/^(\d{4})[\-\/.](\d{1,2})[\-\/.](\d{1,2})(?:[ T].*)?$/);
+            if (m) {
+                const y = parseInt(m[1], 10);
+                const mo = parseInt(m[2], 10);
+                const d = parseInt(m[3], 10);
+                if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31) {
+                    return new Date(y, mo - 1, d);
+                }
+            }
+
+            // 3b) D-M-Y variants (dd-mm-yy, dd/mm/yyyy, dd.mm.yy...)
+            m = str.match(/^(\d{1,2})[\-\/.](\d{1,2})[\-\/.](\d{2,4})(?:[ T].*)?$/);
+            if (m) {
+                let a = parseInt(m[1], 10);   // first number
+                let b = parseInt(m[2], 10);   // second number
+                let y = parseInt(m[3], 10);
+                if (y < 100) y += 2000;
+
+                let day, month;
+                if (a > 12 && b <= 12) {
+                    // unambiguous: DD-MM
+                    day = a; month = b;
+                } else if (b > 12 && a <= 12) {
+                    // unambiguous: MM-DD
+                    day = b; month = a;
+                } else {
+                    // ambiguous — default to DD-MM (user's stated format)
+                    day = a; month = b;
+                }
+
+                if (day >= 1 && day <= 31 && month >= 1 && month <= 12) {
+                    return new Date(y, month - 1, day);
+                }
+            }
+
+            // 3c) "30th September 2026" / "30 Sep 2026" etc.
+            m = str.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s+(\d{2,4})$/);
+            if (m) {
+                const d = parseInt(m[1], 10);
+                const monName = m[2].toLowerCase().slice(0, 3);
+                let y = parseInt(m[3], 10);
+                if (y < 100) y += 2000;
+                const idx = MONTH_NAMES.findIndex(n => n.toLowerCase().slice(0, 3) === monName);
+                if (idx !== -1 && d >= 1 && d <= 31) {
+                    return new Date(y, idx, d);
+                }
+            }
+
+            // 3d) Native fallback
+            const parsed = new Date(str);
+            if (!isNaN(parsed.getTime())) {
+                return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+            }
+            return null;
+        }
+
+        // Public helper: parse & format. If unparseable, returns the original trimmed text.
+        function displayDate(raw) {
+            if (!raw) return '';
+            const trimmed = String(raw).trim();
+            if (!trimmed) return '';
+            const d = parseEndDate(trimmed);
+            if (d) return formatDateFriendly(d);
+            return trimmed; // fall back to whatever the user typed
+        }
+
+        // ============================================================
+        //  Other helpers
         // ============================================================
         function getCurrentStyle() {
             for (const r of styleRadios) {
@@ -853,7 +1038,23 @@
         updateStyleControls();
 
         // ============================================================
-        //  Apply blur to a card's .content
+        //  Logo application
+        // ============================================================
+        function applyLogoToCard(cardEl) {
+            if (!cardEl.classList.contains('logo-mode')) return;
+            if (customLogoDataUrl) {
+                cardEl.style.backgroundImage = `url("${customLogoDataUrl}")`;
+            } else {
+                cardEl.style.backgroundImage = '';
+            }
+        }
+
+        function refreshAllLogos() {
+            document.querySelectorAll('#pagesContainer .card').forEach(applyLogoToCard);
+        }
+
+        // ============================================================
+        //  Blur
         // ============================================================
         function applyBlurToCard(cardEl, blurPx) {
             const content = cardEl.querySelector('.content');
@@ -873,7 +1074,7 @@
         blurSlider.addEventListener('input', updateAllCardsBlur);
 
         // ============================================================
-        //  Delete a single card (rebuilds pages from remaining data)
+        //  Delete a single card
         // ============================================================
         function deleteCard(cardEl) {
             const allCards = Array.from(document.querySelectorAll('#pagesContainer .card'));
@@ -888,13 +1089,31 @@
 
         // ============================================================
         //  Build a card DOM element
+        //  endDateRaw: raw string from Excel/manual. We always re-format
+        //  for display, and store ISO back onto the card so re-renders
+        //  (blur slider, delete, etc.) keep the exact date.
         // ============================================================
-        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide, dateStr) {
+        function buildCard(descText, oldVal, newVal, style, logoPos, easterSide, endDateRaw) {
             const saveAmount = oldVal - newVal;
-            const displayDate = dateStr || offerEndDate || '';
+
+            // Resolve display date:
+            //   - per-card endDateRaw (from Excel or previous render) wins
+            //   - else fall back to the global default
+            const rawForThisCard = (endDateRaw && String(endDateRaw).trim()) ?
+                String(endDateRaw).trim() :
+                (offerEndDateRaw || '');
+
+            const parsed = parseEndDate(rawForThisCard);
+            const displayDate = parsed ? formatDateFriendly(parsed) : (rawForThisCard || '');
 
             const card = document.createElement('div');
             card.className = 'card';
+
+            // Persist the per-card date as ISO (or raw if unparseable)
+            if (endDateRaw && String(endDateRaw).trim()) {
+                const stored = parsed ? formatDateISO(parsed) : String(endDateRaw).trim();
+                card.dataset.customDate = stored;
+            }
 
             // style classes
             if (style === 'logo') {
@@ -902,20 +1121,11 @@
                 const pos = logoPos || 'center';
                 let pc = '';
                 switch (pos) {
-                    case 'top-left':
-                        pc = 'logo-top-left';
-                        break;
-                    case 'top-right':
-                        pc = 'logo-top-right';
-                        break;
-                    case 'bottom-left':
-                        pc = 'logo-bottom-left';
-                        break;
-                    case 'bottom-right':
-                        pc = 'logo-bottom-right';
-                        break;
-                    default:
-                        pc = 'logo-center';
+                    case 'top-left': pc = 'logo-top-left'; break;
+                    case 'top-right': pc = 'logo-top-right'; break;
+                    case 'bottom-left': pc = 'logo-bottom-left'; break;
+                    case 'bottom-right': pc = 'logo-bottom-right'; break;
+                    default: pc = 'logo-center';
                 }
                 card.classList.add(pc);
                 card.classList.remove('easter-side-left', 'easter-side-right');
@@ -933,7 +1143,6 @@
                 }
             }
 
-            // Choose label + class based on style
             let dealLabel = 'HOT DEALS';
             let dealClass = 'deal deal-hot';
             if (style === 'easter') {
@@ -941,7 +1150,6 @@
                 dealClass = 'deal deal-easter';
             }
 
-            // Build footer HTML only if date is provided
             let footerHtml = '';
             if (displayDate) {
                 footerHtml = `
@@ -968,7 +1176,8 @@
             </div>
           `;
 
-            // ----- Delete button (top-right, inside cut border) -----
+            applyLogoToCard(card);
+
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'card-delete';
             deleteBtn.type = 'button';
@@ -982,10 +1191,8 @@
             });
             card.appendChild(deleteBtn);
 
-            // apply current blur
             applyBlurToCard(card, getBlurValue());
 
-            // extra easter style tweak
             if (style === 'easter') {
                 const d = card.querySelector('.desc');
                 if (d) d.style.fontSize = '17px';
@@ -1033,7 +1240,6 @@
 
             const total = cardData.length;
             const pageCount = Math.ceil(total / MAX_CARDS_PER_PAGE);
-            const currentDate = offerEndDate;
 
             for (let p = 0; p < pageCount; p++) {
                 const start = p * MAX_CARDS_PER_PAGE;
@@ -1055,7 +1261,7 @@
                         data.style,
                         data.logoPos,
                         data.easterSide,
-                        currentDate
+                        data.endDate || ''
                     );
                     grid.appendChild(card);
                 });
@@ -1068,7 +1274,7 @@
         }
 
         // ============================================================
-        //  Get all card data from current DOM
+        //  Read card data back from DOM
         // ============================================================
         function getAllCardDataFromDOM() {
             const cardData = [];
@@ -1079,12 +1285,9 @@
                 const oldEl = content.querySelector('.old');
                 const newEl = content.querySelector('.new');
                 const desc = descEl ? descEl.textContent.trim() : '';
-                let oV = 0,
-                    nV = 0;
-                if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g,
-                        '')) || 0; }
-                if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g,
-                        '')) || 0; }
+                let oV = 0, nV = 0;
+                if (oldEl) { const m = oldEl.textContent.match(/[\d,]+/); if (m) oV = parseFloat(m[0].replace(/,/g, '')) || 0; }
+                if (newEl) { const m = newEl.textContent.match(/[\d,]+/); if (m) nV = parseFloat(m[0].replace(/,/g, '')) || 0; }
                 let st = 'logo';
                 if (c.classList.contains('easter-mode')) st = 'easter';
                 let lp = 'center';
@@ -1094,14 +1297,14 @@
                 else if (c.classList.contains('logo-bottom-right')) lp = 'bottom-right';
                 let es = 'left';
                 if (c.classList.contains('easter-side-right')) es = 'right';
-                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es });
+
+                const endDate = c.dataset.customDate || '';
+
+                cardData.push({ desc, oldVal: oV, newVal: nV, style: st, logoPos: lp, easterSide: es, endDate });
             });
             return cardData;
         }
 
-        // ============================================================
-        //  Update all cards with new date (re-render)
-        // ============================================================
         function refreshAllCardsWithDate() {
             const cardData = getAllCardDataFromDOM();
             renderCardsFromData(cardData);
@@ -1130,7 +1333,7 @@
             const easterSide = easterSideSelect.value;
 
             const cardData = getAllCardDataFromDOM();
-            cardData.push({ desc: descText, oldVal, newVal, style, logoPos, easterSide });
+            cardData.push({ desc: descText, oldVal, newVal, style, logoPos, easterSide, endDate: '' });
             renderCardsFromData(cardData);
         }
 
@@ -1144,7 +1347,44 @@
         }
 
         // ============================================================
+        //  Logo upload
+        // ============================================================
+        logoFileInput.addEventListener('change', function() {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file (PNG, JPG, SVG, WEBP...).');
+                this.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                customLogoDataUrl = ev.target.result;
+                logoPreviewImg.src = customLogoDataUrl;
+                logoPreviewText.textContent = 'Custom logo: ' + file.name;
+                logoPreview.classList.add('visible');
+                refreshAllLogos();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        logoResetBtn.addEventListener('click', function() {
+            customLogoDataUrl = '';
+            logoFileInput.value = '';
+            logoPreviewImg.src = '';
+            logoPreview.classList.remove('visible');
+            document.querySelectorAll('#pagesContainer .card.logo-mode').forEach(c => {
+                c.style.backgroundImage = '';
+            });
+            refreshAllLogos();
+        });
+
+        // ============================================================
         //  Excel Import
+        //  NOTE: we do NOT use cellDates:true, because depending on the
+        //  SheetJS build/locale it can shift dates by one day. Instead
+        //  we read raw values and use XLSX.SSF.parse_date_code() for
+        //  numeric serials — that's the most reliable conversion.
         // ============================================================
         function importExcel() {
             const file = excelFileInput.files[0];
@@ -1178,28 +1418,18 @@
                     };
 
                     const descCol = findCol(['Description', 'description', 'Product', 'product', 'Item', 'item']);
-                    const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original',
-                        'original'
-                    ]);
-                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current',
-                        'current'
+                    const wasCol = findCol(['was', 'Was', 'Old', 'old', 'Old Price', 'old price', 'Original', 'original']);
+                    const nowCol = findCol(['Now', 'now', 'New', 'new', 'New Price', 'new price', 'Current', 'current']);
+                    const dateCol = findCol([
+                        'End Date', 'end date', 'EndDate', 'enddate',
+                        'Offer Ends', 'offer ends', 'Offer End Date', 'offer end date',
+                        'Expiry', 'expiry', 'Expiry Date', 'expiry date',
+                        'Valid Until', 'valid until', 'ValidUntil'
                     ]);
 
-                    if (!descCol) {
-                        alert('Could not find a "Description" column in the Excel file.\n\nAvailable columns: ' +
-                            headers.join(', '));
-                        return;
-                    }
-                    if (!wasCol) {
-                        alert('Could not find a "was" (old price) column.\n\nAvailable columns: ' + headers.join(
-                            ', '));
-                        return;
-                    }
-                    if (!nowCol) {
-                        alert('Could not find a "Now" (new price) column.\n\nAvailable columns: ' + headers.join(
-                            ', '));
-                        return;
-                    }
+                    if (!descCol) { alert('Could not find a "Description" column.\n\nAvailable columns: ' + headers.join(', ')); return; }
+                    if (!wasCol)  { alert('Could not find a "was" (old price) column.\n\nAvailable columns: ' + headers.join(', ')); return; }
+                    if (!nowCol)  { alert('Could not find a "Now" (new price) column.\n\nAvailable columns: ' + headers.join(', ')); return; }
 
                     const style = getCurrentStyle();
                     const logoPos = logoPositionSelect.value;
@@ -1207,6 +1437,7 @@
 
                     const cardData = [];
                     let skipped = 0;
+                    let dateFound = 0;
 
                     for (const row of json) {
                         const desc = String(row[descCol] || '').trim();
@@ -1216,13 +1447,17 @@
                         if (!desc) { skipped++; continue; }
                         const wasVal = parseFloat(wasStr);
                         const nowVal = parseFloat(nowStr);
-                        if (isNaN(wasVal) || isNaN(nowVal) || wasVal <= 0 || nowVal <= 0) {
-                            skipped++;
-                            continue;
-                        }
-                        if (nowVal >= wasVal) {
-                            skipped++;
-                            continue;
+                        if (isNaN(wasVal) || isNaN(nowVal) || wasVal <= 0 || nowVal <= 0) { skipped++; continue; }
+                        if (nowVal >= wasVal) { skipped++; continue; }
+
+                        // Parse per-row end date (may be a serial number, ISO string, dd-mm-yy string, etc.)
+                        let endDateISO = '';
+                        if (dateCol && row[dateCol] !== undefined && row[dateCol] !== '') {
+                            const parsed = parseEndDate(row[dateCol]);
+                            if (parsed) {
+                                endDateISO = formatDateISO(parsed);
+                                dateFound++;
+                            }
                         }
 
                         cardData.push({
@@ -1231,14 +1466,13 @@
                             newVal: nowVal,
                             style: style,
                             logoPos: logoPos,
-                            easterSide: easterSide
+                            easterSide: easterSide,
+                            endDate: endDateISO
                         });
                     }
 
                     if (cardData.length === 0) {
-                        alert(
-                            `No valid rows found. Please ensure columns have positive numbers with "was" > "Now".\n\n${skipped} rows skipped.`
-                            );
+                        alert(`No valid rows found. Please ensure columns have positive numbers with "was" > "Now".\n\n${skipped} rows skipped.`);
                         return;
                     }
 
@@ -1248,20 +1482,20 @@
                         const existingData = getAllCardDataFromDOM();
                         const action = confirm(
                             `You have ${existing} existing card(s).\n\nClick "OK" to REPLACE them with the imported data (${cardData.length} cards).\nClick "Cancel" to APPEND the imported data (total ${existing + cardData.length} cards).`
-                            );
-                        if (action) {
-                            finalData = cardData;
-                        } else {
-                            finalData = existingData.concat(cardData);
-                        }
+                        );
+                        if (action) finalData = cardData;
+                        else finalData = existingData.concat(cardData);
                     } else {
                         finalData = cardData;
                     }
 
                     renderCardsFromData(finalData);
-                    alert(
-                        `✅ Successfully imported ${cardData.length} card(s).${skipped > 0 ? `\n⚠️ ${skipped} row(s) were skipped due to invalid data.` : ''}`
-                        );
+
+                    let summary = `✅ Successfully imported ${cardData.length} card(s).`;
+                    if (dateFound > 0) summary += `\n📅 ${dateFound} card(s) have their own End Date.`;
+                    if (dateCol && dateFound === 0) summary += `\n⚠️ An "End Date" column was found but no valid dates were parsed — the default date will be used.`;
+                    if (skipped > 0) summary += `\n⚠️ ${skipped} row(s) were skipped due to invalid data.`;
+                    alert(summary);
 
                 } catch (err) {
                     console.error(err);
@@ -1272,8 +1506,7 @@
         }
 
         // ============================================================
-        //  PDF Export – all pages as one PDF with multiple pages
-        //  (Delete buttons are excluded from the export)
+        //  PDF Export – all pages in one PDF
         // ============================================================
         async function downloadPDF() {
             const pages = document.querySelectorAll('#pagesContainer .page');
@@ -1314,7 +1547,6 @@
 
         // ============================================================
         //  Export individual pages as separate PDFs
-        //  (Delete buttons are excluded from the export)
         // ============================================================
         async function downloadIndividualPDFs() {
             const pages = document.querySelectorAll('#pagesContainer .page');
@@ -1360,12 +1592,10 @@
         importExcelBtn.addEventListener('click', importExcel);
 
         offerEndDateInput.addEventListener('input', function() {
-            const val = this.value.trim();
-            offerEndDate = val || '';
+            offerEndDateRaw = this.value.trim() || '';
             refreshAllCardsWithDate();
         });
 
-        // PDF buttons
         function addPDFControls() {
             const container = document.createElement('div');
             container.style.cssText =
@@ -1389,7 +1619,7 @@
         addPDFControls();
 
         // ============================================================
-        //  Init – show empty state
+        //  Init
         // ============================================================
         function initEmpty() {
             renderCardsFromData([]);
@@ -1406,24 +1636,26 @@
                     newVal: 1999,
                     style: 'easter',
                     logoPos: 'center',
-                    easterSide: 'right'
+                    easterSide: 'right',
+                    endDate: ''
                 }, {
                     desc: 'XanaPlus Energy Capsules',
                     oldVal: 4500,
                     newVal: 2999,
                     style: 'logo',
                     logoPos: 'top-right',
-                    easterSide: 'left'
+                    easterSide: 'left',
+                    endDate: '2026-09-30'
                 }];
                 renderCardsFromData(cardData);
             }
         }, 300);
 
         console.log('🐣 XanaPlus Advert Studio loaded.');
-        console.log('📅 Offer end date footer: update the date field to refresh all cards.');
-        console.log('📊 Import Excel with columns: Description, was, Now');
-        console.log('✂️ Dashed cut borders around each card. No page-number footer.');
-        console.log('✕ Each card has a red delete button (top-right) to remove a single card.');
+        console.log('🗓️ End dates display as e.g. "30th September 2026".');
+        console.log('🖼️ Upload a logo with "Logo Image" — otherwise logo.jpeg must sit next to the HTML.');
+        console.log('📊 Excel columns: Description, was, Now, End Date (optional).');
+        console.log('✂️ Dashed cut borders. ✕ per-card delete (hidden from PDF & print).');
     </script>
 </body>
 </html>
